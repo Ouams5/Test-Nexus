@@ -68,29 +68,15 @@ class LocalStoreClass {
 }
 const LocalStore = new LocalStoreClass();
 
-const defaultUsers: Record<string, User> = {
-  "admin-uid-bypass": {
-    id: "admin-uid-bypass",
-    name: "Admin TeamNexus",
-    email: "account@teamnexus.app",
-    role: UserRole.OWNER,
-    grade: "Administration",
-    joinedClubIds: ["club-1", "club-2"],
-    avatarUrl: `https://ui-avatars.com/api/?name=Admin+TeamNexus&background=1e3a8a&color=fff`,
-    ip: "Local Fallback",
-    lastLogin: new Date().toISOString(),
-    plainPassword: "test",
-    badges: []
-  }
-};
+const defaultUsers: Record<string, User> = {};
 
 const defaultClubs: Record<string, Club> = {
   "club-1": {
     id: "club-1",
     name: "AI & Coding Club",
     description: "The official university club for artificial intelligence, machine learning, and fullstack coding projects. We learn together and build amazing apps.",
-    leaderId: "admin-uid-bypass",
-    memberIds: ["admin-uid-bypass"],
+    leaderId: "system-setup-admin",
+    memberIds: [],
     category: "Technology",
     logoUrl: "https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?auto=format&fit=crop&q=80&w=200",
     bannerUrl: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=1200",
@@ -100,8 +86,8 @@ const defaultClubs: Record<string, Club> = {
     id: "club-2",
     name: "Robotics Club",
     description: "Building autonomous systems, sensory feedback designs, and internet-of-things controllers.",
-    leaderId: "admin-uid-bypass",
-    memberIds: ["admin-uid-bypass"],
+    leaderId: "system-setup-admin",
+    memberIds: [],
     category: "Engineering",
     logoUrl: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&q=80&w=200",
     bannerUrl: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=1200",
@@ -116,7 +102,7 @@ const defaultAnnouncements: Record<string, Announcement> = {
     content: "We are thrilled to launch the new club management system. Here, you can coordinate club events, explore student projects, issue digital merit badges, and chat in real-time.",
     date: new Date().toISOString(),
     authorName: "Nexus Administration",
-    authorEmail: "account@teamnexus.app",
+    authorEmail: "admin@bniyekhlef.edu",
     isImportant: true
   }
 };
@@ -130,7 +116,7 @@ const defaultEvents: Record<string, AppEvent> = {
     time: "14:00 - 17:00",
     location: "Hall B, Engineering Block",
     clubId: "club-1",
-    creatorId: "admin-uid-bypass"
+    creatorId: "system-setup-admin"
   }
 };
 
@@ -138,10 +124,10 @@ const defaultProjects: Record<string, Project> = {
   "proj-1": {
     id: "proj-1",
     title: "Nexus Companion AI Assistant",
-    description: "An study assistant integrated with course syllabi to test students' comprehension and summarize academic lectures in real-time.",
+    description: "A study assistant integrated with course syllabi to test students' comprehension and summarize academic lectures in real-time.",
     clubId: "club-1",
-    creatorId: "admin-uid-bypass",
-    creatorName: "Admin TeamNexus",
+    creatorId: "system-setup-admin",
+    creatorName: "Nexus Administration",
     createdAt: new Date().toISOString(),
     likes: 5,
     likedByUserIds: [],
@@ -152,7 +138,7 @@ const defaultProjects: Record<string, Project> = {
 const defaultCredits: Record<string, Credit> = {
   "credit-1": {
     id: "credit-1",
-    studentName: "Admin TeamNexus",
+    studentName: "Nexus Support Team",
     clubName: "Nexus Admin",
     description: "System Architect and Core Security Integration lead.",
     date: new Date().toISOString()
@@ -173,7 +159,6 @@ const tryCall = async <T>(fbAction: () => Promise<T>, fallbackAction: () => Prom
 // Wrapper functions to match AuthContext expectations
 export const signInWithEmailAndPassword = async (authInstance: any, email: string, pass: string, remember: boolean = false) => {
     const normalizedEmail = email.trim().toLowerCase();
-    const isAdminTestAcc = normalizedEmail === 'account@teamnexus.app' && pass === 'test';
 
     if (isFirebaseAvailable && authInstance) {
         try {
@@ -182,18 +167,7 @@ export const signInWithEmailAndPassword = async (authInstance: any, email: strin
             return userCred;
         } catch (err) {
             console.warn("Firebase sign in failed, trying fallback mode", err);
-            if (isAdminTestAcc) {
-                localStorage.setItem("nexus_bypass_auth_uid", "admin-uid-bypass");
-                return {
-                    user: {
-                        uid: "admin-uid-bypass",
-                        email: "account@teamnexus.app",
-                        emailVerified: true,
-                        displayName: "Admin TeamNexus"
-                    }
-                };
-            }
-            const localUsers = LocalStore.get("users", defaultUsers);
+            const localUsers = LocalStore.get("users", {});
             const matchedUser: any = Object.values(localUsers).find(
                 (u: any) => u.email.toLowerCase() === normalizedEmail && u.plainPassword === pass
             );
@@ -211,18 +185,7 @@ export const signInWithEmailAndPassword = async (authInstance: any, email: strin
             throw err;
         }
     } else {
-        if (isAdminTestAcc) {
-            localStorage.setItem("nexus_bypass_auth_uid", "admin-uid-bypass");
-            return {
-                user: {
-                    uid: "admin-uid-bypass",
-                    email: "account@teamnexus.app",
-                    emailVerified: true,
-                    displayName: "Admin TeamNexus"
-                }
-            };
-        }
-        const localUsers = LocalStore.get("users", defaultUsers);
+        const localUsers = LocalStore.get("users", {});
         const matchedUser: any = Object.values(localUsers).find(
             (u: any) => u.email.toLowerCase() === normalizedEmail && u.plainPassword === pass
         );

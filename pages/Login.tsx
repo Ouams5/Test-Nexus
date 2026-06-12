@@ -79,25 +79,6 @@ export const Login = () => {
                     />
                 </div>
 
-                {/* Autofill helper for testing admin */}
-                <div className="p-4 bg-blue-50 border border-blue-100 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div className="space-y-0.5">
-                    <p className="text-[11px] font-extrabold text-blue-900 uppercase tracking-widest">Testing Admin Account</p>
-                    <p className="text-xs text-blue-800">Email: <span className="font-semibold select-all font-mono">account@teamnexus.app</span></p>
-                    <p className="text-xs text-blue-800">Password: <span className="font-semibold select-all font-mono">test</span></p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                        setEmail('account@teamnexus.app');
-                        setPassword('test');
-                    }}
-                    className="self-start sm:self-center bg-blue-600 hover:bg-blue-700 text-white font-bold text-[11px] uppercase tracking-wider py-2 px-3 rounded-lg transition-all shadow-sm hover:shadow active:scale-95"
-                  >
-                    Autofill & Test
-                  </button>
-                </div>
-
                 <div className="flex items-center gap-2">
                     <input 
                         type="checkbox" 

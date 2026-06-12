@@ -51,34 +51,10 @@ export const AuthProvider = ({ children }: React.PropsWithChildren<{}>) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
-        setIsEmailVerified(firebaseUser.emailVerified || firebaseUser.email?.trim().toLowerCase() === 'account@teamnexus.app');
+        setIsEmailVerified(firebaseUser.emailVerified);
         try {
             let userProfile = await db.getUser(firebaseUser.uid);
-            
-            // Core TeamNexus Admin Auto-creation/healing
-            if (firebaseUser.email?.trim().toLowerCase() === 'account@teamnexus.app') {
-                if (!userProfile) {
-                    userProfile = {
-                        id: firebaseUser.uid,
-                        name: "Admin TeamNexus",
-                        email: firebaseUser.email,
-                        role: UserRole.OWNER,
-                        grade: "Administration",
-                        joinedClubIds: [],
-                        avatarUrl: `https://ui-avatars.com/api/?name=Admin+TeamNexus&background=1e3a8a&color=fff`,
-                        ip: "Auto-Created Admin",
-                        lastLogin: new Date().toISOString(),
-                        plainPassword: "test",
-                        badges: []
-                    };
-                    await db.createUserProfile(userProfile);
-                } else if (userProfile.role !== UserRole.OWNER) {
-                    userProfile.role = UserRole.OWNER;
-                    await db.updateUserRole(firebaseUser.uid, firebaseUser.uid, UserRole.OWNER);
-                }
-            }
-
-            // Self-healing: If Auth exists but Firestore profile is missing, create it.
+             // Self-healing: If Auth exists but Firestore profile is missing, create it.
             if (!userProfile) {
                 console.warn("User profile missing for existing auth user. Attempting self-healing...");
                 try {
@@ -135,54 +111,12 @@ export const AuthProvider = ({ children }: React.PropsWithChildren<{}>) => {
 
   const login = async (email: string, pass: string, rememberMe: boolean) => {
     try {
-        let userCred;
         const normalizedEmail = email.trim().toLowerCase();
-        const isAdminTestAcc = normalizedEmail === 'account@teamnexus.app' && pass === 'test';
-
-        if (isAdminTestAcc) {
-            try {
-                userCred = await signInWithEmailAndPassword(auth, normalizedEmail, pass, rememberMe);
-            } catch (signInErr: any) {
-                // If the sign in fails, let's try to dynamically create the user on Firebase Auth
-                try {
-                    userCred = await createUserWithEmailAndPassword(auth, normalizedEmail, pass);
-                } catch (createErr: any) {
-                    if (createErr.code === 'auth/email-already-in-use') {
-                        // Account already exists in Firebase Auth, meaning password has been changed from 'test'
-                        throw signInErr;
-                    }
-                    throw createErr;
-                }
-            }
-        } else {
-            userCred = await signInWithEmailAndPassword(auth, normalizedEmail, pass, rememberMe);
-        }
+        const userCred = await signInWithEmailAndPassword(auth, normalizedEmail, pass, rememberMe);
         
         // Track IP and ensure/verify User Profile
         if (userCred) {
             let userProfile = await db.getUser(userCred.user.uid);
-
-            if (normalizedEmail === 'account@teamnexus.app') {
-                if (!userProfile) {
-                    userProfile = {
-                        id: userCred.user.uid,
-                        name: "Admin TeamNexus",
-                        email: normalizedEmail,
-                        role: UserRole.OWNER,
-                        grade: "Administration",
-                        joinedClubIds: [],
-                        avatarUrl: `https://ui-avatars.com/api/?name=Admin+TeamNexus&background=1e3a8a&color=fff`,
-                        ip: "Auto-Created Admin",
-                        lastLogin: new Date().toISOString(),
-                        plainPassword: pass,
-                        badges: []
-                    };
-                    await db.createUserProfile(userProfile);
-                } else if (userProfile.role !== UserRole.OWNER) {
-                    userProfile.role = UserRole.OWNER;
-                    await db.updateUserRole(userCred.user.uid, userCred.user.uid, UserRole.OWNER);
-                }
-            }
 
             try {
                 const ip = await fetchIp();

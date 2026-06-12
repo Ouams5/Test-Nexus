@@ -6,9 +6,10 @@ import { db } from '../services/mockFirebase';
 import { User, UserRole, Badge, BadgeType } from '../types';
 import { 
     ShieldAlert, RefreshCw, UserMinus, Code2, Trash2, CheckSquare, Square, Globe, 
-    Database, Search, Key, Eye, EyeOff, Terminal, X, Award, Plus, LayoutList, UploadCloud, Loader2
+    Database, Search, Key, Eye, EyeOff, Terminal, X, Award, Plus, LayoutList, UploadCloud, Loader2, Sparkles
 } from 'lucide-react';
 import { Navigate } from 'react-router-dom';
+import { DocumentScanner } from '../components/DocumentScanner';
 
 export const AdminPanel = () => {
   const { canAccessAdminPanel, user, refreshUser, isOwner, isDev } = useAuth();
@@ -16,7 +17,7 @@ export const AdminPanel = () => {
   const { showToast, confirm } = useUI();
   
   // Tab State
-  const [activeTab, setActiveTab] = useState<'users' | 'inspector'>('users');
+  const [activeTab, setActiveTab] = useState<'users' | 'inspector' | 'scan-import'>('users');
 
   // Shared Data
   const [users, setUsers] = useState<User[]>([]);
@@ -386,12 +387,18 @@ export const AdminPanel = () => {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-slate-100 dark:bg-slate-800/50 p-1 rounded-xl w-fit">
+      <div className="flex gap-1 bg-slate-100 dark:bg-slate-800/50 p-1 rounded-xl w-fit flex-wrap">
           <button 
             onClick={() => setActiveTab('users')}
             className={`px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-all ${activeTab === 'users' ? 'bg-white dark:bg-slate-800 shadow-sm text-blue-600 dark:text-blue-400' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'}`}
           >
               <LayoutList size={16} /> User Management
+          </button>
+          <button 
+            onClick={() => setActiveTab('scan-import')}
+            className={`px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-all ${activeTab === 'scan-import' ? 'bg-white dark:bg-slate-800 shadow-sm text-emerald-600 dark:text-emerald-400' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'}`}
+          >
+              <Sparkles size={16} className="text-emerald-500" /> Bulk Scan & Import
           </button>
           <button 
             onClick={() => setActiveTab('inspector')}
@@ -547,6 +554,16 @@ export const AdminPanel = () => {
                 </div>
             )}
           </div>
+      )}
+
+      {/* --- TAB 1.5: BULK SCAN & IMPORT --- */}
+      {activeTab === 'scan-import' && (
+          <DocumentScanner 
+              onImportSuccess={loadUsers} 
+              db={db} 
+              showToast={showToast} 
+              confirm={confirm} 
+          />
       )}
 
       {/* --- TAB 2: INSPECTOR --- */}
