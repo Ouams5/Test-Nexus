@@ -1,0 +1,24 @@
+{
+  "name": "UniClub Nexus",
+  "short_name": "Nexus",
+  "description": "A comprehensive university club management platform with role-based access control, event scheduling, and project showcases.",
+  "start_url": "/#/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#1e3a8a",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "https://img.icons8.com/color/192/diversity.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://img.icons8.com/color/512/diversity.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

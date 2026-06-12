@@ -1,0 +1,8 @@
+{
+  "name": "Test Version : UniClub Nexus",
+  "description": "A comprehensive university club management platform with role-based access control, event scheduling, and project showcases.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
